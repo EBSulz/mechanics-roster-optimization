@@ -2,11 +2,12 @@
 Unit tests for data_loader module.
 """
 
-import pytest
-import pandas as pd
 import io
 import sys
 from pathlib import Path
+
+import pandas as pd
+import pytest
 
 # Add src to path
 src_path = Path(__file__).parent.parent / "src"
@@ -84,9 +85,7 @@ def test_load_data_basic(data_loader, sample_mechanic_skills, sample_base_schedu
     sample_cost_matrix.to_excel(cost_matrix_buffer, index=False)
     cost_matrix_buffer.seek(0)
 
-    data = data_loader.load_data(
-        mechanic_skills_buffer, base_schedule_buffer, cost_matrix_buffer, None
-    )
+    data = data_loader.load_data(mechanic_skills_buffer, base_schedule_buffer, cost_matrix_buffer, None)
 
     assert "mechanics" in data
     assert "bases" in data
@@ -120,9 +119,7 @@ def test_load_data_with_avoidance(
     sample_avoidance_list.to_excel(avoidance_buffer, index=False)
     avoidance_buffer.seek(0)
 
-    data = data_loader.load_data(
-        mechanic_skills_buffer, base_schedule_buffer, cost_matrix_buffer, avoidance_buffer
-    )
+    data = data_loader.load_data(mechanic_skills_buffer, base_schedule_buffer, cost_matrix_buffer, avoidance_buffer)
 
     assert "avoidance_dict" in data
     assert len(data["avoidance_dict"]) > 0
@@ -142,14 +139,10 @@ def test_cost_dict_creation(data_loader, sample_cost_matrix):
     mechanic_skills_buffer.seek(0)
 
     base_schedule_buffer = io.BytesIO()
-    pd.DataFrame({"base_id": [1, 2], "period": [1, 1], "shift": [1, 1]}).to_excel(
-        base_schedule_buffer, index=False
-    )
+    pd.DataFrame({"base_id": [1, 2], "period": [1, 1], "shift": [1, 1]}).to_excel(base_schedule_buffer, index=False)
     base_schedule_buffer.seek(0)
 
-    data = data_loader.load_data(
-        mechanic_skills_buffer, base_schedule_buffer, cost_matrix_buffer, None
-    )
+    data = data_loader.load_data(mechanic_skills_buffer, base_schedule_buffer, cost_matrix_buffer, None)
 
     assert (1, 1) in data["cost_dict"]
     assert data["cost_dict"][(1, 1)] == 10.0

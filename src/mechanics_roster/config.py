@@ -2,8 +2,8 @@
 Configuration management module.
 """
 
-import os
 import logging
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -23,7 +23,7 @@ class Config:
         self.solver = os.getenv("SOLVER", self.DEFAULT_SOLVER)
         self.log_level = os.getenv("LOG_LEVEL", self.DEFAULT_LOG_LEVEL)
         self.data_dir = Path(os.getenv("DATA_DIR", self.DEFAULT_DATA_DIR))
-        
+
         # Validate
         self._validate()
 

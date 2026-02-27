@@ -2,8 +2,9 @@
 Data loading and processing module for mechanics roster optimization.
 """
 
-import pandas as pd
 import logging
+
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -15,9 +16,7 @@ class DataLoader:
         """Initialize the DataLoader."""
         self.base_column_mapping = {"A": 1, "B": 2, "C": 3}
 
-    def load_data(
-        self, mechanic_skills_file, base_schedule_file, cost_matrix_file, avoidance_list_file=None
-    ):
+    def load_data(self, mechanic_skills_file, base_schedule_file, cost_matrix_file, avoidance_list_file=None):
         """
         Load and process all input data files.
 
@@ -79,6 +78,7 @@ class DataLoader:
                 logger.warning(f"Could not load avoidance list: {e}")
         data["avoidance_dict"] = avoidance_dict
 
-        logger.info(f"Loaded data: {len(mechanics)} mechanics, {len(bases)} bases, "
-                   f"{len(periods)} periods, {len(shifts)} shifts")
+        logger.info(
+            f"Loaded data: {len(mechanics)} mechanics, {len(bases)} bases, " f"{len(periods)} periods, {len(shifts)} shifts"
+        )
         return data

@@ -11,16 +11,17 @@ src_path = Path(__file__).parent.parent
 if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
-import streamlit as st
-import pandas as pd
 import io
 from datetime import datetime
+
+import pandas as pd
+import streamlit as st
 from ortools.linear_solver import pywraplp
 
-from mechanics_roster.data_loader import DataLoader
-from mechanics_roster.optimizer import RosterOptimizer
-from mechanics_roster.excel_generator import ExcelGenerator
 from mechanics_roster.config import Config
+from mechanics_roster.data_loader import DataLoader
+from mechanics_roster.excel_generator import ExcelGenerator
+from mechanics_roster.optimizer import RosterOptimizer
 
 # Setup logging
 Config.setup_logging()
@@ -94,8 +95,7 @@ def main():
     if st.sidebar.button("🚀 Run Optimization", type="primary"):
         if not all([mechanic_skills_file, base_schedule_file, cost_matrix_file]):
             st.error(
-                "❌ Please upload all required files: Mechanic Skills Dataset, "
-                "Base Aircraft Schedule, and Cost Matrix"
+                "❌ Please upload all required files: Mechanic Skills Dataset, " "Base Aircraft Schedule, and Cost Matrix"
             )
         else:
             progress_bar = st.progress(0)
@@ -150,9 +150,7 @@ def main():
                     with col2:
                         st.write(f"**Solver:** {solver.SolverVersion()}")
                         if data["avoidance_dict"]:
-                            unique_pairs = {
-                                (min(k), max(k)) for k in data["avoidance_dict"].keys()
-                            }
+                            unique_pairs = {(min(k), max(k)) for k in data["avoidance_dict"].keys()}
                             st.write(f"**Avoidance Pairs:** {len(unique_pairs)}")
 
                 # Solve
@@ -175,20 +173,14 @@ def main():
                     # Avoidance penalties
                     total_avoidance_penalty = 0
                     if data["avoidance_dict"] and avoidance_vars:
-                        unique_pairs = {
-                            (m1, m2)
-                            for (m1, m2) in data["avoidance_dict"].keys()
-                            if m1 < m2
-                        }
-                        for (m1, m2) in unique_pairs:
+                        unique_pairs = {(m1, m2) for (m1, m2) in data["avoidance_dict"].keys() if m1 < m2}
+                        for m1, m2 in unique_pairs:
                             penalty = data["avoidance_dict"][(m1, m2)]
                             for b in data["bases"]:
                                 for g in data["periods"]:
                                     for s in data["shifts"]:
                                         key = (m1, m2, b, g, s)
-                                        if key in avoidance_vars and avoidance_vars[
-                                            key
-                                        ].solution_value() > 0.5:
+                                        if key in avoidance_vars and avoidance_vars[key].solution_value() > 0.5:
                                             total_avoidance_penalty += penalty
 
                     objective_value = solver.Objective().Value()
@@ -249,9 +241,7 @@ def main():
                         st.dataframe(assignments_df, use_container_width=True)
 
                 elif status == pywraplp.Solver.INFEASIBLE:
-                    st.error(
-                        "❌ Problem is infeasible - no solution exists that satisfies all constraints"
-                    )
+                    st.error("❌ Problem is infeasible - no solution exists that satisfies all constraints")
                     status_text.text("❌ Infeasible problem")
                 else:
                     st.warning(f"⚠️ Solver status: {status}")

@@ -3,10 +3,11 @@ Excel output generation module.
 """
 
 import logging
-from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from openpyxl.utils import get_column_letter
+
 import pandas as pd
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+from openpyxl.utils import get_column_letter
 
 logger = logging.getLogger(__name__)
 
@@ -64,9 +65,7 @@ class ExcelGenerator:
         )
 
         # Headers
-        headers = ["Base", "Roster", "Airframe", "Engine", "Avionics", "Position"] + [
-            f"Day {i}" for i in range(1, 31)
-        ]
+        headers = ["Base", "Roster", "Airframe", "Engine", "Avionics", "Position"] + [f"Day {i}" for i in range(1, 31)]
         ws.append(headers)
 
         for col_idx, header in enumerate(headers, 1):
@@ -131,7 +130,7 @@ class ExcelGenerator:
         sorted_keys = sorted(assignments_by_base_shift.keys(), key=lambda x: (x[0], x[1]))
         current_row = 2
 
-        for (base_letter, shift_num) in sorted_keys:
+        for base_letter, shift_num in sorted_keys:
             shift_name = "Day Shift" if shift_num == 1 else "Night Shift"
 
             # Section header
@@ -159,25 +158,21 @@ class ExcelGenerator:
                 is_inspector = False
                 if inspector_req_columns:
                     for _, row in base_schedule_df.iterrows():
-                        if int(row["base_id"]) == [
-                            k for k, v in self.base_letter_map.items() if v == base_letter
-                        ][0] and int(row["shift"]) == shift_num:
+                        if (
+                            int(row["base_id"]) == [k for k, v in self.base_letter_map.items() if v == base_letter][0]
+                            and int(row["shift"]) == shift_num
+                        ):
                             for inspector_col in inspector_req_columns:
                                 if inspector_col in base_schedule_df.columns:
                                     inspector_required = row[inspector_col]
                                     if pd.notna(inspector_required) and inspector_required > 0:
-                                        if mechanic_inspector_skills.get(mechanic_id, {}).get(
-                                            inspector_col, 0
-                                        ) == 1:
+                                        if mechanic_inspector_skills.get(mechanic_id, {}).get(inspector_col, 0) == 1:
                                             regular_skill_name = inspector_col.replace("_inspec", "")
                                             other_mechanics = [
                                                 a["mechanic_id"]
                                                 for a in base_assignments
                                                 if a["mechanic_id"] != mechanic_id
-                                                and mechanic_skills.get(a["mechanic_id"], {}).get(
-                                                    regular_skill_name, 0
-                                                )
-                                                == 1
+                                                and mechanic_skills.get(a["mechanic_id"], {}).get(regular_skill_name, 0) == 1
                                             ]
                                             if other_mechanics:
                                                 is_inspector = True

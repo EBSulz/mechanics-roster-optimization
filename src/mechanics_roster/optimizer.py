@@ -3,8 +3,9 @@ Optimization model creation and solving module.
 """
 
 import logging
-from ortools.linear_solver import pywraplp
+
 import pandas as pd
+from ortools.linear_solver import pywraplp
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ class RosterOptimizer:
             data: Dictionary containing all input data
 
         Returns:
-            tuple: (solver, x, mechanic_skills, mechanic_inspector_skills, 
+            tuple: (solver, x, mechanic_skills, mechanic_inspector_skills,
                    inspector_req_columns, avoidance_vars)
         """
         # Extract data
@@ -171,11 +172,11 @@ class RosterOptimizer:
         if avoidance_dict:
             logger.info("Adding avoidance constraints")
             unique_pairs = set()
-            for (m1, m2) in avoidance_dict.keys():
+            for m1, m2 in avoidance_dict.keys():
                 if m1 < m2:
                     unique_pairs.add((m1, m2))
 
-            for (m1, m2) in unique_pairs:
+            for m1, m2 in unique_pairs:
                 for b in bases:
                     for g in periods:
                         for s in shifts:
@@ -183,7 +184,7 @@ class RosterOptimizer:
                             avoidance_vars[(m1, m2, b, g, s)] = solver.IntVar(0, 1, var_name)
 
             # Linearization constraints
-            for (m1, m2) in unique_pairs:
+            for m1, m2 in unique_pairs:
                 for b in bases:
                     for g in periods:
                         for s in shifts:
@@ -217,11 +218,11 @@ class RosterOptimizer:
         # Avoidance penalties
         if avoidance_dict and avoidance_vars:
             unique_pairs = set()
-            for (m1, m2) in avoidance_dict.keys():
+            for m1, m2 in avoidance_dict.keys():
                 if m1 < m2:
                     unique_pairs.add((m1, m2))
 
-            for (m1, m2) in unique_pairs:
+            for m1, m2 in unique_pairs:
                 penalty = avoidance_dict[(m1, m2)]
                 for b in bases:
                     for g in periods:
@@ -259,6 +260,7 @@ class RosterOptimizer:
 
         logger.info("Solving optimization problem")
         import time
+
         start_time = time.time()
         status = self.solver.Solve()
         solve_time = time.time() - start_time

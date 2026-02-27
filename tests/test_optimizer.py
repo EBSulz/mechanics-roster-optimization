@@ -2,44 +2,53 @@
 Unit tests for optimizer module.
 """
 
-import pytest
 import sys
 from pathlib import Path
+
+import pytest
 
 # Add src to path
 src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
-from mechanics_roster.optimizer import RosterOptimizer
-from mechanics_roster.data_loader import DataLoader
-import pandas as pd
 import io
+
+import pandas as pd
+
+from mechanics_roster.data_loader import DataLoader
+from mechanics_roster.optimizer import RosterOptimizer
 
 
 @pytest.fixture
 def sample_data():
     """Create sample data for testing."""
     # Minimal data for testing
-    mechanic_skills_df = pd.DataFrame({
-        "mechanic_id": [1, 2],
-        "aw139_af": [1, 1],
-        "aw139_r": [1, 1],
-        "aw139_av": [1, 0],
-    })
+    mechanic_skills_df = pd.DataFrame(
+        {
+            "mechanic_id": [1, 2],
+            "aw139_af": [1, 1],
+            "aw139_r": [1, 1],
+            "aw139_av": [1, 0],
+        }
+    )
 
-    base_schedule_df = pd.DataFrame({
-        "base_id": [1, 1],
-        "period": [1, 2],
-        "shift": [1, 1],
-        "aw139": [1, 1],
-    })
+    base_schedule_df = pd.DataFrame(
+        {
+            "base_id": [1, 1],
+            "period": [1, 2],
+            "shift": [1, 1],
+            "aw139": [1, 1],
+        }
+    )
 
-    cost_matrix_df = pd.DataFrame({
-        "id": [1, 2],
-        "A": [10.0, 20.0],
-        "B": [15.0, 25.0],
-        "C": [20.0, 30.0],
-    })
+    cost_matrix_df = pd.DataFrame(
+        {
+            "id": [1, 2],
+            "A": [10.0, 20.0],
+            "B": [15.0, 25.0],
+            "C": [20.0, 30.0],
+        }
+    )
 
     data = {
         "mechanic_skills_df": mechanic_skills_df,
@@ -70,8 +79,8 @@ def test_optimizer_initialization(optimizer):
 
 def test_create_model(optimizer, sample_data):
     """Test model creation."""
-    solver, x, mechanic_skills, mechanic_inspector_skills, inspector_req_columns, avoidance_vars = (
-        optimizer.create_model(sample_data)
+    solver, x, mechanic_skills, mechanic_inspector_skills, inspector_req_columns, avoidance_vars = optimizer.create_model(
+        sample_data
     )
 
     assert solver is not None

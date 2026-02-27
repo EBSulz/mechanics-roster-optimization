@@ -2,10 +2,11 @@
 Unit tests for config module.
 """
 
-import pytest
 import os
 import sys
 from pathlib import Path
+
+import pytest
 
 # Add src to path
 src_path = Path(__file__).parent.parent / "src"
