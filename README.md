@@ -47,10 +47,35 @@ Python 3.7 or higher is recommended.
 mechanics-roster-optimization/
 ├── README.md                          # This file
 ├── requirements.txt                   # Python dependencies
-├── operations_research.ipynb         # Main optimization notebook
-├── mechanic_skills_dataset.xlsx      # Mechanic skills data
-├── base_aircraft_schedule.xlsx       # Base schedule with aircraft requirements
-└── cost_matrix.xlsx                  # Cost of moving each mechanic to each base
+├── requirements-dev.txt               # Development dependencies
+├── setup.py                           # Package setup configuration
+├── pyproject.toml                     # Modern Python project configuration
+├── pytest.ini                         # Pytest configuration
+├── .flake8                            # Flake8 linting configuration
+├── .gitignore                         # Git ignore rules
+├── src/                               # Source code package
+│   └── mechanics_roster/
+│       ├── __init__.py
+│       ├── app.py                     # Streamlit application
+│       ├── config.py                  # Configuration management
+│       ├── data_loader.py             # Data loading and processing
+│       ├── optimizer.py               # Optimization model creation and solving
+│       └── excel_generator.py        # Excel output generation
+├── tests/                              # Unit tests
+│   ├── __init__.py
+│   ├── test_data_loader.py
+│   ├── test_optimizer.py
+│   └── test_config.py
+├── .github/
+│   └── workflows/
+│       └── ci.yml                     # GitHub Actions CI workflow
+├── data/                               # Data files directory
+│   ├── mechanic_skills_dataset.xlsx
+│   ├── base_aircraft_schedule.xlsx
+│   ├── cost_matrix.xlsx
+│   └── avoidance_list.xlsx
+└── notebooks/                          # Jupyter notebooks
+    └── mechanics_roster_optimization_dist_cost.ipynb
 ```
 
 ## 📊 Data Files
@@ -77,22 +102,107 @@ Contains the cost of moving each mechanic to each base:
 
 ## 🚀 Usage
 
-1. **Ensure all data files are in the project directory**:
-   - `mechanic_skills_dataset.xlsx`
-   - `base_aircraft_schedule.xlsx`
-   - `cost_matrix.xlsx`
+### Installation
 
-2. **Open and run the Jupyter notebook**:
+1. **Clone the repository**:
    ```bash
-   jupyter notebook operations_research.ipynb
+   git clone https://github.com/yourusername/mechanics-roster-optimization.git
+   cd mechanics-roster-optimization
    ```
 
-3. **Execute all cells** in sequence. The notebook will:
-   - Load and validate the input data
-   - Set up the optimization model
-   - Define constraints and objective function
-   - Solve the optimization problem
-   - Display the optimal assignments
+2. **Create a virtual environment** (recommended):
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Install in development mode** (optional, for development):
+   ```bash
+   pip install -e .
+   pip install -r requirements-dev.txt
+   ```
+
+### Running the Streamlit App
+
+1. **Start the Streamlit application**:
+   ```bash
+   streamlit run src/mechanics_roster/app.py
+   ```
+   
+   Or use the convenience scripts:
+   ```bash
+   # On Linux/Mac
+   ./run_app.sh
+   
+   # On Windows
+   run_app.bat
+   ```
+
+2. **Upload the required Excel files** through the web interface:
+   - Mechanic Skills Dataset
+   - Base Aircraft Schedule
+   - Cost Matrix
+   - Avoidance List (optional)
+
+3. **Click "Run Optimization"** to generate the optimized roster
+
+### Running Tests
+
+Run the test suite with pytest:
+```bash
+pytest tests/ -v
+```
+
+Run tests with coverage:
+```bash
+pytest tests/ --cov=src/mechanics_roster --cov-report=html
+```
+
+### Using the Package Programmatically
+
+```python
+from mechanics_roster.data_loader import DataLoader
+from mechanics_roster.optimizer import RosterOptimizer
+from mechanics_roster.excel_generator import ExcelGenerator
+
+# Load data
+loader = DataLoader()
+data = loader.load_data(
+    "data/mechanic_skills_dataset.xlsx",
+    "data/base_aircraft_schedule.xlsx",
+    "data/cost_matrix.xlsx",
+    "data/avoidance_list.xlsx"  # optional
+)
+
+# Create and solve model
+optimizer = RosterOptimizer(solver_name="SCIP")
+optimizer.create_model(data)
+status, solve_time = optimizer.solve()
+
+# Extract solution
+assignments, total_cost = optimizer.extract_solution(
+    data["mechanics"],
+    data["bases"],
+    data["periods"],
+    data["shifts"],
+    data["cost_dict"]
+)
+
+# Generate Excel output
+generator = ExcelGenerator()
+wb = generator.generate_output(
+    assignments, data, optimizer.mechanic_skills,
+    optimizer.mechanic_inspector_skills,
+    optimizer.inspector_req_columns,
+    data["base_schedule_df"]
+)
+wb.save("output/roster.xlsx")
+```
 
 ## 🔬 Solution Approach
 
@@ -167,6 +277,36 @@ Unassigned mechanics: 25
 - **Constraint Satisfaction**: Ensuring all business rules and requirements are met
 - **Cost Optimization**: Finding the most economical solution while meeting all constraints
 
+## 🔄 CI/CD
+
+This project uses GitHub Actions for continuous integration. The CI pipeline:
+
+- **Runs on**: Python 3.8, 3.9, 3.10, and 3.11
+- **Tests**: Runs pytest with coverage reporting
+- **Linting**: Checks code style with flake8, black, and isort
+- **Triggers**: On push to `main`/`develop` branches and on pull requests
+
+View the workflow configuration in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
+### Running CI Checks Locally
+
+```bash
+# Format code
+black src/ tests/
+
+# Check formatting
+black --check src/ tests/
+
+# Sort imports
+isort src/ tests/
+
+# Lint code
+flake8 src/ tests/
+
+# Type checking (optional)
+mypy src/
+```
+
 ## 📝 Notes
 
 - The model ensures **feasibility** by requiring skill coverage for all aircraft types present at each base-period-shift combination
@@ -174,13 +314,49 @@ Unassigned mechanics: 25
 - The solution is **optimal** (not just feasible) when using SCIP solver
 - Cost values of `0` indicate no movement cost (mechanic already at that base or base preference)
 
+## 🏗️ MLOps Best Practices
+
+This project follows MLOps best practices:
+
+- ✅ **Modular architecture**: Separated business logic from UI
+- ✅ **Configuration management**: Environment-based configuration
+- ✅ **Logging**: Structured logging throughout the application
+- ✅ **Testing**: Comprehensive unit tests with coverage
+- ✅ **CI/CD**: Automated testing and linting via GitHub Actions
+- ✅ **Package structure**: Proper Python package layout with `src/` directory
+- ✅ **Type hints**: Type annotations for better code maintainability
+- ✅ **Documentation**: Comprehensive README and docstrings
+
 ## 🤝 Contributing
 
-Feel free to extend this project by:
-- Adding additional constraints (e.g., mechanic preferences, workload balancing)
-- Implementing different objective functions (e.g., maximize skill utilization)
-- Adding visualization tools for the assignments
-- Creating a web interface for easier interaction
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass (`pytest`)
+6. Run linting checks (`flake8`, `black`, `isort`)
+7. Commit your changes (`git commit -m 'Add some amazing feature'`)
+8. Push to the branch (`git push origin feature/amazing-feature`)
+9. Open a Pull Request
+
+### Development Setup
+
+```bash
+# Install in development mode
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Run with coverage
+pytest --cov=src/mechanics_roster --cov-report=html
+
+# Format code
+black src/ tests/
+isort src/ tests/
+```
 
 ## 📄 License
 

@@ -1,5 +1,10 @@
 #!/bin/bash
-echo "Activating conda environment: mechanics-roster-optimization"
-conda activate mechanics-roster-optimization
-echo "Starting Streamlit app..."
-streamlit run app.py
+# Run script for Streamlit app
+
+# Activate virtual environment if it exists
+if [ -d "venv" ]; then
+    source venv/bin/activate
+fi
+
+# Run the Streamlit app
+streamlit run src/mechanics_roster/app.py
