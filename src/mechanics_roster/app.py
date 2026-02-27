@@ -2,6 +2,15 @@
 Streamlit application entry point.
 """
 
+import sys
+from pathlib import Path
+
+# Add src directory to Python path to allow imports
+# This handles cases where the app is run directly without installing the package
+src_path = Path(__file__).parent.parent
+if str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))
+
 import streamlit as st
 import pandas as pd
 import io
