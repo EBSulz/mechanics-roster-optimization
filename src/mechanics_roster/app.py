@@ -62,7 +62,7 @@ st.markdown(
 def main():
     """Main Streamlit app."""
     st.markdown(
-        '<h1 class="main-header">🔧 Mechanics Roster Optimization</h1>',
+        '<h1 class="main-header">🔧 Mechanics Roster Optimization v2</h1>',
         unsafe_allow_html=True,
     )
 
