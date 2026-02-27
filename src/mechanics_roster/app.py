@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 # Page configuration
 st.set_page_config(
-    page_title="Mechanics Roster Optimization",
+    page_title="Mechanics Roster Optimization v2",
     page_icon="🔧",
     layout="wide",
 )
